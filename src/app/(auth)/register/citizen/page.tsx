@@ -121,17 +121,6 @@ export default function CitizenRegisterPage() {
             ]}
             />
 
-            <Select
-            label="Zona"
-            {...register("zoneType")}
-            error={errors.zoneType?.message}
-            disabled={isLoading}
-            options={[
-                { value: "URBAN", label: "Urbana" },
-                { value: "RURAL", label: "Rural" },
-            ]}
-            />
-
           
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -151,7 +140,19 @@ export default function CitizenRegisterPage() {
             error={errors.department?.message}
             disabled={isLoading}
             />
+            <Select
+            label="Tipo de Zona"
+            {...register("zoneType")}
+            error={errors.zoneType?.message}
+            disabled={isLoading}
+            options={[
+                { value: "", label: "Seleccionar..." },
+                { value: "URBAN", label: "Urbana" },
+                { value: "RURAL", label: "Rural" },
+            ]}
+            />
           </div>
+          
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input
