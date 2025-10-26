@@ -36,7 +36,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "src/types/**/*.d.ts"
-  ],
+, "src/middleware.ts.backup"  ],
   "exclude": [
     "node_modules"
   ]
