@@ -1,0 +1,322 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+// ============================================
+// MODELOS DE NEXTAUTH (Requeridos)
+// ============================================
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ============================================
+// MODELO PRINCIPAL: USUARIO
+// ============================================
+
+enum UserRole {
+  CITIZEN      // Ciudadano buscando empleo/formación
+  COMPANY      // Empresa ofreciendo vacantes
+  INSTITUTION  // Institución educativa
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  password      String?   // Para registro con credenciales
+  role          UserRole  @default(CITIZEN)
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  // Relaciones NextAuth
+  accounts Account[]
+  sessions Session[]
+
+  // Relaciones específicas del sistema
+  citizenProfile     CitizenProfile?
+  companyProfile     CompanyProfile?
+  institutionProfile InstitutionProfile?
+
+  @@map("users")
+}
+
+// ============================================
+// PERFILES ESPECÍFICOS POR ROL
+// ============================================
+
+model CitizenProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique @map("user_id")
+  firstName   String    @map("first_name")
+  lastName    String    @map("last_name")
+  phone       String?
+  dateOfBirth DateTime? @map("date_of_birth") // ✅ Fecha de nacimiento
+  gender      Gender?                          // ✅ Género
+  address     String?
+  city        String?
+  department  String?                          // ✅ Departamento (era "province")
+  zoneType    ZoneType? @map("zone_type")     // ✅ Urbano/Rural
+  bio         String?   @db.Text
+  
+  // Expectativas laborales
+  jobStatus    JobStatus @default(SEEKING) @map("job_status")
+  availability String?
+  
+  createdAt DateTime @default(now()) @map("created_at") // ✅ Ya existía
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Relaciones con otros modelos
+  education      Education[]
+  experience     Experience[]
+  skills         CitizenSkill[]
+  certifications Certification[]
+
+  @@map("citizen_profiles")
+}
+
+// ✅ Nuevo enum para Género
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_SAY
+}
+
+// ✅ Nuevo enum para Zona
+enum ZoneType {
+  URBAN
+  RURAL
+}
+
+
+enum JobStatus {
+  EMPLOYED         // Empleado actualmente
+  SEEKING          // Buscando empleo activamente
+  OPEN_TO_OFFERS   // Abierto a ofertas
+  NOT_SEEKING      // No buscando
+}
+
+model CompanyProfile {
+  id           String   @id @default(cuid())
+  userId       String   @unique @map("user_id")
+  companyName  String   @map("company_name")
+  description  String?  @db.Text
+  industry     String?
+  size         String?
+  website      String?
+  phone        String?
+  address      String?
+  city         String?
+  department   String?  // ✅ Cambio de "province" a "department"
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("company_profiles")
+}
+
+model InstitutionProfile {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  institutionName String   @map("institution_name")
+  description     String?  @db.Text
+  institutionType String?  @map("institution_type")
+  website         String?
+  phone           String?
+  address         String?
+  city            String?
+  department      String?  // ✅ Cambio de "province" a "department"
+  
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("institution_profiles")
+}
+
+
+// ============================================
+// SISTEMA DE HABILIDADES (ESTANDARIZADO)
+// ============================================
+
+enum SkillCategory {
+  TECHNICAL        // Programación, diseño, etc.
+  SOFT_SKILLS      // Comunicación, liderazgo
+  LANGUAGE         // Idiomas
+  TOOLS            // Software, herramientas
+  INDUSTRY         // Conocimiento de industria específica
+}
+
+enum SkillLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+  EXPERT
+}
+
+model Skill {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  category    SkillCategory
+  description String?       @db.Text
+  
+  createdAt   DateTime      @default(now()) @map("created_at")
+  updatedAt   DateTime      @updatedAt @map("updated_at")
+
+  // Relación muchos-a-muchos con ciudadanos
+  citizens CitizenSkill[]
+
+  @@map("skills")
+}
+
+// Tabla intermedia explícita para añadir metadatos
+model CitizenSkill {
+  id           String     @id @default(cuid())
+  citizenId    String     @map("citizen_id")
+  skillId      String     @map("skill_id")
+  level        SkillLevel
+  yearsOfExp   Int?       @map("years_of_experience")
+  verified     Boolean    @default(false) // Si está certificado/verificado
+  
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  citizen CitizenProfile @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+  skill   Skill          @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@unique([citizenId, skillId])
+  @@map("citizen_skills")
+}
+
+// ============================================
+// EDUCACIÓN
+// ============================================
+
+enum EducationLevel {
+  PRIMARY
+  SECONDARY
+  TECHNICAL
+  UNIVERSITY
+  POSTGRADUATE
+  DOCTORATE
+}
+
+model Education {
+  id            String         @id @default(cuid())
+  citizenId     String         @map("citizen_id")
+  level         EducationLevel
+  institution   String
+  fieldOfStudy  String         @map("field_of_study")
+  degree        String?        // "Licenciatura", "Ingeniería", etc.
+  startDate     DateTime       @map("start_date")
+  endDate       DateTime?      @map("end_date")
+  current       Boolean        @default(false)
+  description   String?        @db.Text
+  
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+
+  citizen CitizenProfile @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+
+  @@map("education")
+}
+
+// ============================================
+// EXPERIENCIA LABORAL
+// ============================================
+
+model Experience {
+  id           String   @id @default(cuid())
+  citizenId    String   @map("citizen_id")
+  company      String
+  position     String
+  startDate    DateTime @map("start_date")
+  endDate      DateTime? @map("end_date")
+  current      Boolean  @default(false)
+  description  String?  @db.Text
+  
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  citizen CitizenProfile @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+
+  @@map("experiences")
+}
+
+// ============================================
+// CERTIFICACIONES
+// ============================================
+
+model Certification {
+  id            String    @id @default(cuid())
+  citizenId     String    @map("citizen_id")
+  name          String
+  issuingOrg    String    @map("issuing_organization")
+  issueDate     DateTime  @map("issue_date")
+  expiryDate    DateTime? @map("expiry_date")
+  credentialId  String?   @map("credential_id")
+  credentialUrl String?   @map("credential_url")
+  
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  citizen CitizenProfile @relation(fields: [citizenId], references: [id], onDelete: Cascade)
+
+  @@map("certifications")
+}
