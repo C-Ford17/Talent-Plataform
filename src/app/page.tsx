@@ -5,11 +5,6 @@ import { redirect } from "next/navigation";
 export default async function HomePage() {
   const session = await auth();
 
-  // Si ya está autenticado, redirigir al perfil
-  if (session) {
-    redirect("/profile");
-  }
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Navbar */}
@@ -30,21 +25,35 @@ export default async function HomePage() {
                 📚 API Docs
               </Link>
               
-              {/* Botones de autenticación */}
-              <div className="flex gap-4">
-                <Link
-                  href="/login"
-                  className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors"
-                >
-                  Iniciar Sesión
-                </Link>
-                <Link
-                  href="/register"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-md"
-                >
-                  Registrarse
-                </Link>
-              </div>
+              {/* ✅ Mostrar botones según estado de autenticación */}
+              {session ? (
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600">
+                    {session.user.name || session.user.email}
+                  </span>
+                  <Link
+                    href="/profile"
+                    className="px-4 py-2 text-blue-600 hover:text-blue-700 font-medium transition-colors"
+                  >
+                    Mi Perfil
+                  </Link>
+                </div>
+              ) : (
+                <div className="flex gap-4">
+                  <Link
+                    href="/login"
+                    className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors"
+                  >
+                    Iniciar Sesión
+                  </Link>
+                  <Link
+                    href="/register"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors shadow-md"
+                  >
+                    Registrarse
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -69,18 +78,29 @@ export default async function HomePage() {
             para impulsar el desarrollo profesional y cerrar la brecha de talento.
           </p>
           <div className="flex gap-4 justify-center">
-            <Link
-              href="/register"
-              className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              Comenzar Ahora
-            </Link>
-            <Link
-              href="#features"
-              className="px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 font-semibold text-lg transition-all"
-            >
-              Conocer Más
-            </Link>
+            {session ? (
+              <Link
+                href="/profile"
+                className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+              >
+                Ir a Mi Perfil
+              </Link>
+            ) : (
+              <>
+                <Link
+                  href="/register"
+                  className="px-8 py-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold text-lg transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                >
+                  Comenzar Ahora
+                </Link>
+                <Link
+                  href="#features"
+                  className="px-8 py-4 bg-white text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 font-semibold text-lg transition-all"
+                >
+                  Conocer Más
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </section>
@@ -188,16 +208,18 @@ export default async function HomePage() {
       <section className="bg-gradient-to-r from-blue-600 to-purple-600 py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold text-white mb-6">
-            ¿Listo para potenciar tu carrera?
+            {session ? "Completa tu perfil profesional" : "¿Listo para potenciar tu carrera?"}
           </h2>
           <p className="text-xl text-blue-100 mb-10">
-            Únete a Talento Local y da el siguiente paso en tu desarrollo profesional
+            {session
+              ? "Agrega tus habilidades, educación y experiencia para destacar"
+              : "Únete a Talento Local y da el siguiente paso en tu desarrollo profesional"}
           </p>
           <Link
-            href="/register"
+            href={session ? "/profile" : "/register"}
             className="inline-block px-8 py-4 bg-white text-blue-600 rounded-lg hover:bg-gray-100 font-semibold text-lg transition-all shadow-xl transform hover:-translate-y-1"
           >
-            Crear Cuenta Gratuita
+            {session ? "Ir a Mi Perfil" : "Crear Cuenta Gratuita"}
           </Link>
         </div>
       </section>

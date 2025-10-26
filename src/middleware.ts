@@ -1,5 +1,8 @@
 export { auth as middleware } from "@/lib/auth";
 
 export const config = {
-  matcher: ["/profile/:path*", "/dashboard/:path*"],
+  matcher: [
+    "/profile/:path*",
+    "/dashboard/:path*",
+  ],
 };
