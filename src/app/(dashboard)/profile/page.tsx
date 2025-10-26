@@ -80,6 +80,15 @@ export default async function ProfilePage() {
                         </p>
                       </div>
                     )}
+                    {/* Después de la sección de información personal */}
+                    <div className="mt-6 flex justify-end">
+                      <Link
+                        href="/profile/edit"
+                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                      >
+                        ✏️ Editar Perfil
+                      </Link>
+                    </div>
                     {citizenData.phone && (
                       <div>
                         <span className="text-sm font-medium text-gray-500">Teléfono:</span>
@@ -127,6 +136,23 @@ export default async function ProfilePage() {
                     <div className="mt-4">
                       <span className="text-sm font-medium text-gray-500">Acerca de mí:</span>
                       <p className="text-gray-900 mt-1">{citizenData.bio}</p>
+                    </div>
+                  )}
+                  {citizenData.address && (
+                    <div className="md:col-span-2">
+                      <span className="text-sm font-medium text-gray-500">Dirección:</span>
+                      <p className="text-gray-900 font-medium">{citizenData.address}</p>
+                    </div>
+                  )}
+                  {citizenData.jobStatus && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-500">Estado Laboral:</span>
+                      <p className="text-gray-900 font-medium">
+                        {citizenData.jobStatus === 'EMPLOYED' ? 'Empleado' :
+                        citizenData.jobStatus === 'SEEKING' ? 'Buscando empleo' :
+                        citizenData.jobStatus === 'OPEN_TO_OFFERS' ? 'Abierto a ofertas' :
+                        'No buscando empleo'}
+                      </p>
                     </div>
                   )}
 
