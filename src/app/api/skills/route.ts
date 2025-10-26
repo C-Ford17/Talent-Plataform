@@ -56,3 +56,42 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+// ✨ NUEVO: Crear una habilidad
+export async function POST(request: Request) {
+  try {
+    const { name, category, description } = await request.json();
+
+    // Validar que no exista ya
+    const existingSkill = await db.skill.findUnique({
+      where: { name },
+    });
+
+    if (existingSkill) {
+      return corsResponse(
+        { success: false, error: 'Esta habilidad ya existe' },
+        400
+      );
+    }
+
+    // Crear la habilidad
+    const newSkill = await db.skill.create({
+      data: {
+        name,
+        category: category || 'TECHNICAL',
+        description: description || null,
+      },
+    });
+
+    return corsResponse({
+      success: true,
+      skill: newSkill,
+    }, 201);
+  } catch (error) {
+    console.error('Error creating skill:', error);
+    return corsResponse(
+      { success: false, error: 'Error al crear habilidad' },
+      500
+    );
+  }
+}

@@ -19,6 +19,137 @@ interface UserSkill {
   };
 }
 
+// ✨ Componente para crear habilidades (movido al inicio)
+function CreateSkillForm({ onSkillCreated }: { onSkillCreated: () => void }) {
+  const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "TECHNICAL",
+    description: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const res = await fetch('/api/skills', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        alert('¡Habilidad creada exitosamente!');
+        setFormData({ name: "", category: "TECHNICAL", description: "" });
+        setShowForm(false);
+        onSkillCreated();
+      } else {
+        alert(data.error || 'Error al crear habilidad');
+      }
+    } catch (error) {
+      alert('Error al crear habilidad');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="mb-6">
+      {!showForm ? (
+        <button
+          onClick={() => setShowForm(true)}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium"
+        >
+          ➕ Crear Nueva Habilidad
+        </button>
+      ) : (
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900">
+              Crear Nueva Habilidad
+            </h3>
+            <button
+              onClick={() => setShowForm(false)}
+              className="text-gray-500 hover:text-gray-700"
+            >
+              ✕
+            </button>
+          </div>
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Nombre de la Habilidad *
+              </label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                placeholder="Ej: Python Avanzado"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Categoría *
+              </label>
+              <select
+                required
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900 bg-white"
+              >
+                <option value="TECHNICAL">Técnica</option>
+                <option value="SOFT_SKILLS">Habilidad Blanda</option>
+                <option value="LANGUAGE">Idioma</option>
+                <option value="TOOLS">Herramientas</option>
+                <option value="INDUSTRY">Industria</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
+                Descripción (opcional)
+              </label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                rows={3}
+                className="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-900"
+                placeholder="Describe brevemente esta habilidad..."
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:bg-gray-400 font-medium"
+              >
+                {loading ? 'Creando...' : 'Crear Habilidad'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium"
+              >
+                Cancelar
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ✨ Componente principal
 export default function SkillsPage() {
   const router = useRouter();
   const [userSkills, setUserSkills] = useState<UserSkill[]>([]);
@@ -109,6 +240,9 @@ export default function SkillsPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4">
       <div className="max-w-4xl mx-auto">
+        {/* ✨ Botón de crear nueva habilidad */}
+        <CreateSkillForm onSkillCreated={loadData} />
+
         <div className="bg-white shadow rounded-lg p-6">
           <div className="flex justify-between items-center mb-6">
             <div>
@@ -119,7 +253,7 @@ export default function SkillsPage() {
             </div>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium"
             >
               + Agregar Habilidad
             </button>
@@ -183,7 +317,7 @@ export default function SkillsPage() {
 
                     <button
                       onClick={() => handleRemove(userSkill.id)}
-                      className="text-red-600 hover:text-red-800 text-sm ml-4"
+                      className="text-red-600 hover:text-red-800 text-sm ml-4 font-medium"
                     >
                       Eliminar
                     </button>
@@ -196,7 +330,7 @@ export default function SkillsPage() {
           <div className="mt-6 pt-6 border-t">
             <button
               onClick={() => router.push("/profile")}
-              className="text-blue-600 hover:text-blue-800"
+              className="text-blue-600 hover:text-blue-800 font-medium"
             >
               ← Volver al perfil
             </button>
