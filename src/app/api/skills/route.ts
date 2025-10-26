@@ -1,6 +1,11 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
+import { corsResponse, corsOptionsResponse } from '@/lib/cors';
+
+export async function OPTIONS() {
+  return corsOptionsResponse();
+}
 /**
  * @swagger
  * /api/skills:
@@ -39,15 +44,15 @@ export async function GET(request: NextRequest) {
       orderBy: [{ category: "asc" }, { name: "asc" }],
     });
 
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       skills,
-      count: skills.length,
+      count: skills.length
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: "Error al obtener habilidades" },
-      { status: 500 }
+    return corsResponse(
+      { success: false, error: 'Error al obtener habilidades' },
+      500
     );
   }
 }

@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { corsResponse, corsOptionsResponse } from '@/lib/cors';
 
+export async function OPTIONS() {
+  return corsOptionsResponse();
+}
 /**
  * @swagger
  * /api/profiles/{userId}:
@@ -65,14 +69,14 @@ export async function GET(
       );
     }
 
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       profile: citizenProfile,
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: "Error al obtener perfil" },
-      { status: 500 }
+    return corsResponse(
+      { success: false, error: 'Error al obtener perfil' },
+      500
     );
   }
 }

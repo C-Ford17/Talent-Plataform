@@ -1,5 +1,11 @@
 import { db } from "@/lib/db";
+import { count } from "console";
 import { NextRequest, NextResponse } from "next/server";
+import { corsResponse, corsOptionsResponse } from '@/lib/cors';
+
+export async function OPTIONS() {
+  return corsOptionsResponse();
+}
 
 /**
  * @swagger
@@ -48,15 +54,15 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       users,
-      count: users.length,
+      count: users.length
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: "Error al obtener usuarios" },
-      { status: 500 }
+    return corsResponse(
+      { success: false, error: 'Error al obtener usuarios' },
+      500
     );
   }
 }

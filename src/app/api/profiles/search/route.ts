@@ -1,5 +1,10 @@
 import { db } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
+import { corsResponse, corsOptionsResponse } from '@/lib/cors';
+
+export async function OPTIONS() {
+  return corsOptionsResponse();
+}
 
 /**
  * @swagger
@@ -77,15 +82,15 @@ export async function GET(request: NextRequest) {
       take: 50,
     });
 
-    return NextResponse.json({
+    return corsResponse({
       success: true,
       profiles,
-      count: profiles.length,
+      count: profiles.length
     });
   } catch (error) {
-    return NextResponse.json(
-      { success: false, error: "Error en búsqueda" },
-      { status: 500 }
+    return corsResponse(
+      { success: false, error: 'Error al buscar perfiles' },
+      500
     );
   }
 }
