@@ -63,16 +63,24 @@ Una vez iniciado el servidor, visita:
   - `GET /api/profiles/search` - Búsqueda de perfiles
 ## 🗂️ Estructura del Proyecto
 talent-platform/
-├── prisma/ # Schema y migraciones
+├── prisma/
+│ ├── schema.prisma
+│ └── seed.ts
 ├── src/
-│ ├── app/ # Pages y API routes
-│ ├── components/ # Componentes reutilizables
-│ ├── features/ # Módulos por funcionalidad
-│ │ ├── auth/ # Autenticación
-│ │ ├── profile/ # Perfiles
-│ │ └── skills/ # Habilidades
-│ └── lib/ # Utilidades y configuración
-└── public/ # Assets estáticos
+│ ├── app/
+│ │ ├── (auth)/
+│ │ ├── (dashboard)/
+│ │ ├── api/
+│ │ └── api-docs/
+│ ├── components/
+│ │ ├── layout/
+│ │ └── ui/
+│ ├── features/
+│ │ ├── auth/
+│ │ ├── profile/
+│ │ └── skills/
+│ ├── lib/
+│ └── types/
 
 ## 🌿 Ramas del Proyecto
 
@@ -87,12 +95,18 @@ talent-platform/
 - `feature/ui` - Mejoras de interfaz
 
 ## 📝 Scripts Disponibles
+
 npm run dev # Servidor de desarrollo
+
 npm run build # Build de producción
+
 npm run start # Servidor de producción
+
 npm run lint # Linter
+
 npx prisma studio # Interfaz visual de base de datos
-npm run prisma:seed # Cargar datos iniciales
+
+npx prisma db seed # Cargar datos iniciales
 
 
 ## 🎓 Proyecto Académico
