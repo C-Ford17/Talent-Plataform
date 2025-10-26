@@ -62,25 +62,23 @@ Una vez iniciado el servidor, visita:
   - `GET /api/skills` - Catálogo de habilidades
   - `GET /api/profiles/search` - Búsqueda de perfiles
 ## 🗂️ Estructura del Proyecto
-📦 talent-platform
-├── 📂 prisma/
-│ ├── 📄 schema.prisma # Modelos de base de datos
-│ └── 📄 seed.ts # Datos iniciales
-├── 📂 src/
-│ ├── 📂 app/ # Pages y API routes
-│ │ ├── 📂 (auth)/ # Login y registro
-│ │ ├── 📂 (dashboard)/ # Dashboard protegido
-│ │ ├── 📂 api/ # API REST endpoints
-│ │ └── 📂 api-docs/ # Swagger UI
-│ ├── 📂 components/ # Componentes reutilizables
-│ │ ├── 📂 layout/ # Navbar, Footer
-│ │ └── 📂 ui/ # Input, Select
-│ ├── 📂 features/ # Módulos por funcionalidad
-│ │ ├── 📂 auth/ # Autenticación
-│ │ ├── 📂 profile/ # Perfiles
-│ │ └── 📂 skills/ # Habilidades
-│ ├── 📂 lib/ # Configuración
-│ └── 📂 types/ # TypeScript types
+## 📁 Estructura del Proyecto
+
+| Directorio | Descripción |
+|------------|-------------|
+| `prisma/` | Schema de base de datos y seeds |
+| `src/app/` | Rutas y páginas (Next.js App Router) |
+| `src/app/(auth)/` | Páginas de login y registro |
+| `src/app/(dashboard)/` | Dashboard protegido |
+| `src/app/api/` | API REST endpoints |
+| `src/components/` | Componentes React reutilizables |
+| `src/features/` | Módulos por funcionalidad |
+| `src/features/auth/` | Sistema de autenticación |
+| `src/features/profile/` | Gestión de perfiles |
+| `src/features/skills/` | Sistema de habilidades |
+| `src/lib/` | Configuración y utilidades |
+| `public/` | Assets estáticos |
+
 
 ## 🌿 Ramas del Proyecto
 
