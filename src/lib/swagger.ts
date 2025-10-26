@@ -14,8 +14,8 @@ const options: swaggerJsdoc.Options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000',
-        description: 'Servidor de Desarrollo',
+        url: process.env.NEXTAUTH_URL || 'http://localhost:3000',
+        description: 'API Server',
       },
     ],
     components: {

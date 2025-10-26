@@ -35,7 +35,9 @@ export default function ApiDocsPage() {
           <div className="mt-4 flex gap-4">
             <div className="px-4 py-2 bg-blue-50 rounded-lg">
               <span className="text-sm font-semibold text-blue-900">Base URL:</span>
-              <code className="text-sm text-blue-600 ml-2">http://localhost:3000</code>
+              <code className="text-sm text-blue-600 ml-2">
+                {typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}
+              </code>
             </div>
           </div>
         </div>
